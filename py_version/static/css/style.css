@@ -1,0 +1,47 @@
+/* Allgemeine Stile */
+body {
+    background-color: #f8f9fa;
+}
+
+/* Navbar-Anpassungen */
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+}
+
+/* Card-Anpassungen */
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,.075);
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid rgba(0,0,0,.125);
+}
+
+/* Tabellen-Anpassungen */
+.table th {
+    background-color: #f8f9fa;
+}
+
+/* Button-Anpassungen */
+.btn {
+    margin: 0.25rem;
+}
+
+/* Alert-Anpassungen */
+.alert {
+    margin-bottom: 1rem;
+}
+
+/* Form-Anpassungen */
+.form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+/* Badge-Anpassungen */
+.badge {
+    font-size: 0.875em;
+    padding: 0.35em 0.65em;
+}

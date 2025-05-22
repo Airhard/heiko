@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}{{ station.name }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('main.stations') }}">Stationen</a></li>
+                <li class="breadcrumb-item active">{{ station.name }}</li>
+            </ol>
+        </nav>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="card-title mb-0">{{ station.name }}</h3>
+            </div>
+            <div class="card-body">
+                <p class="lead">{{ station.description }}</p>
+                
+                {% if not station.is_password_verified and station.requires_password %}
+                    <div class="alert alert-info">
+                        <form method="POST" action="{{ url_for('main.verify_station_password', station_id=station.id) }}" 
+                              class="row g-3 align-items-center">
+                            {{ password_form.hidden_tag() }}
+                            <div class="col-auto">
+                                <label for="password" class="col-form-label">Stations-Passwort:</label>
+                            </div>
+                            <div class="col-auto">
+                                {{ password_form.password(class="form-control") }}
+                            </div>
+                            <div class="col-auto">
+                                <button type="submit" class="btn btn-primary">Überprüfen</button>
+                            </div>
+                        </form>
+                    </div>
+                {% else %}
+                    <div id="tasks-container">
+                        {% for task in station.tasks %}
+                        <div class="card mb-3 task-card" data-task-id="{{ task.id }}">
+                            <div class="card-body">
+                                <h5 class="card-title">Aufgabe {{ loop.index }}</h5>
+                                {% if task.type == 'text' %}
+                                    <p class="card-text">{{ task.content }}</p>
+                                {% elif task.type == 'image' %}
+                                    <img src="{{ url_for('static', filename=task.content) }}" 
+                                         class="img-fluid mb-3" alt="Aufgabenbild">
+                                {% endif %}
+                                
+                                {% if task.questions %}
+                                <div class="questions-container">
+                                    {% for question in task.questions %}
+                                    <div class="mb-3">
+                                        <label class="form-label">{{ question.text }}</label>
+                                        {% if question.type == 'multiple_choice' %}
+                                            {% for option in question.options %}
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" 
+                                                       name="question_{{ question.id }}" 
+                                                       value="{{ option.id }}"
+                                                       id="option_{{ option.id }}">
+                                                <label class="form-check-label" for="option_{{ option.id }}">
+                                                    {{ option.text }}
+                                                </label>
+                                            </div>
+                                            {% endfor %}
+                                        {% elif question.type == 'text' %}
+                                            <input type="text" class="form-control" 
+                                                   name="question_{{ question.id }}">
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                        
+                        <div class="d-grid gap-2">
+                            <button type="button" class="btn btn-primary" id="submit-answers">
+                                Antworten einreichen
+                            </button>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('submit-answers').addEventListener('click', async function() {
+    const answers = {};
+    const questions = document.querySelectorAll('[name^="question_"]');
+    
+    questions.forEach(question => {
+        const questionId = question.name.split('_')[1];
+        if (question.type === 'radio') {
+            if (question.checked) {
+                answers[questionId] = question.value;
+            }
+        } else {
+            answers[questionId] = question.value;
+        }
+    });
+
+    try {
+        const response = await fetch("{{ url_for('api.submit_answers', station_id=station.id) }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ answers: answers })
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+            window.location.href = result.redirect_url;
+        } else {
+            alert('Fehler beim Speichern der Antworten: ' + result.message);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.');
+    }
+});
+</script>
+{% endblock %}

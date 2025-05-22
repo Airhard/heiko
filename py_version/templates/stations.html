@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Stationen{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2>Verfügbare Stationen</h2>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for station in stations %}
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">{{ station.name }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">{{ station.description }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge {% if station.is_completed %}bg-success{% else %}bg-primary{% endif %}">
+                                {% if station.is_completed %}
+                                    Abgeschlossen
+                                {% else %}
+                                    Offen
+                                {% endif %}
+                            </span>
+                            <small class="text-muted">{{ station.tasks|length }} Aufgaben</small>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <a href="{{ url_for('main.station_detail', station_id=station.id) }}" 
+                           class="btn btn-primary w-100">
+                            {% if station.is_completed %}
+                                Ergebnisse ansehen
+                            {% else %}
+                                Station starten
+                            {% endif %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Station bearbeiten' if station else 'Neue Station' }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2>{{ 'Station bearbeiten' if station else 'Neue Station' }}</h2>
+            <form method="POST">
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name</label>
+                    <input type="text" class="form-control" id="name" name="name" value="{{ station.name if station else '' }}" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="group" class="form-label">Gruppe</label>
+                    <select class="form-control" id="group" name="group" required>
+                        <option value="">Gruppe auswählen...</option>
+                        {% for group in groups %}
+                        <option value="{{ group.id }}" {% if station and station.group_id == group.id %}selected{% endif %}>
+                            {{ group.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="information" class="form-label">Information</label>
+                    <textarea class="form-control" id="information" name="information" rows="3">{{ station.information if station else '' }}</textarea>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="code" class="form-label">Code</label>
+                    <input type="text" class="form-control" id="code" name="code" value="{{ station.code if station else '' }}" maxlength="4">
+                    <small class="form-text text-muted">4-stelliger Code für die Station (optional)</small>
+                </div>
+                
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="requires_password" name="requires_password" 
+                           {% if station and station.requires_password %}checked{% endif %}>
+                    <label class="form-check-label" for="requires_password">Passwort erforderlich</label>
+                </div>
+                
+                <div class="mb-3" id="password_field" style="display: none;">
+                    <label for="password" class="form-label">Passwort</label>
+                    <input type="password" class="form-control" id="password" name="password">
+                    {% if station and station.requires_password %}
+                    <small class="form-text text-muted">Leer lassen, um das bestehende Passwort beizubehalten</small>
+                    {% endif %}
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Speichern</button>
+                <a href="{{ url_for('admin.index') }}" class="btn btn-secondary">Abbrechen</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('requires_password').addEventListener('change', function() {
+    document.getElementById('password_field').style.display = this.checked ? 'block' : 'none';
+});
+// Initial state
+document.getElementById('password_field').style.display = 
+    document.getElementById('requires_password').checked ? 'block' : 'none';
+</script>
+{% endblock %}

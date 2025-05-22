@@ -28,6 +28,16 @@ class Team(db.Model):
     members = db.relationship('TeamUser', back_populates='team')
     scores = db.relationship('Score', backref='team', lazy=True)
 
+    @property
+    def total_score(self):
+        return sum(score.total_score for score in self.scores)
+
+    @property
+    def average_score(self):
+        if not self.scores:
+            return 0
+        return self.total_score / len(self.scores)
+
 class TeamUser(db.Model):
     __tablename__ = 'rk_team_users'
     user_id = db.Column(db.Integer, db.ForeignKey('rk_users.id'), primary_key=True)

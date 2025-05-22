@@ -64,16 +64,11 @@ def verify_station_password(station_id):
 @main.route('/scores')
 #@login_required
 def scores():
-    teams = Team.query.order_by(Team.total_score.desc()).all()
+    teams = Team.query.all()
     stations = Station.query.all()
     
-    # Berechne Durchschnittspunkte für jedes Team
-    for team in teams:
-        scores = Score.query.filter_by(team_id=team.id).all()
-        if scores:
-            team.average_score = sum(score.score for score in scores) / len(scores)
-        else:
-            team.average_score = 0
+    # Sortiere Teams nach Gesamtpunktzahl
+    teams.sort(key=lambda x: x.total_score, reverse=True)
     
     # Hole die Scores für jede Station
     for station in stations:
